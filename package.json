@@ -12,6 +12,7 @@
     "db:push": "node scripts/apply-migrations.mjs"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.4.1",
     "bcryptjs": "^2.4.3",
     "jose": "^5.9.6",
     "next": "^15.1.6",
