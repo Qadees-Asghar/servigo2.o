@@ -15,21 +15,34 @@ import { Alert, Logo, api } from "@/components/ui";
  */
 export default function AdminSetupPage() {
   const router = useRouter();
-  const [state, setState] = useState<{
+  type SetupState = {
     available: boolean;
     claimed: boolean;
     configured: boolean;
-  } | null>(null);
+    hasEmails: boolean;
+    hasToken: boolean;
+    dbOk: boolean;
+    dbError: string | null;
+  };
+
+  const [state, setState] = useState<SetupState | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    api<{ available: boolean; claimed: boolean; configured: boolean }>(
-      "/api/admin/setup"
-    ).then((r) => {
+    api<SetupState>("/api/admin/setup").then((r) => {
       if (r.ok && r.data) setState(r.data);
-      else setState({ available: false, claimed: false, configured: false });
+      else
+        setState({
+          available: false,
+          claimed: false,
+          configured: false,
+          hasEmails: false,
+          hasToken: false,
+          dbOk: false,
+          dbError: r.message ?? "Could not reach the server.",
+        });
     });
   }, []);
 
@@ -85,17 +98,61 @@ export default function AdminSetupPage() {
                 Go to sign in
               </Link>
             </div>
-          ) : !state.configured ? (
+          ) : !state.available ? (
             <div className="space-y-4">
-              <Alert>
-                Setup is not configured. Set ADMIN_EMAILS and ADMIN_SETUP_TOKEN in your
-                environment variables, then redeploy.
-              </Alert>
+              <Alert>Setup cannot run yet. See the checks below.</Alert>
+
+              <ul className="space-y-2 text-sm">
+                {[
+                  {
+                    ok: state.dbOk,
+                    label: "Database reachable",
+                    hint: "Check DATABASE_URL. Use the pooler string on port 6543 and make sure the password is correct.",
+                  },
+                  {
+                    ok: state.hasEmails,
+                    label: "ADMIN_EMAILS is set",
+                    hint: "Comma separated allowlist of addresses permitted to hold the admin role.",
+                  },
+                  {
+                    ok: state.hasToken,
+                    label: "ADMIN_SETUP_TOKEN is set (16+ characters)",
+                    hint: "A random secret you generate. Delete it once setup is done.",
+                  },
+                ].map((c) => (
+                  <li
+                    key={c.label}
+                    className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-2)] px-4 py-3"
+                  >
+                    <p className="flex items-center gap-2 font-semibold">
+                      <span
+                        style={{
+                          color: c.ok
+                            ? "var(--color-success)"
+                            : "var(--color-danger)",
+                        }}
+                      >
+                        {c.ok ? "PASS" : "FAIL"}
+                      </span>
+                      {c.label}
+                    </p>
+                    {!c.ok ? (
+                      <p className="mt-1 text-xs text-[var(--color-muted)]">{c.hint}</p>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+
+              {state.dbError ? (
+                <p className="rounded-lg bg-[var(--color-danger-dim)] px-3.5 py-2.5 font-mono text-xs text-[var(--color-danger)]">
+                  {state.dbError}
+                </p>
+              ) : null}
+
               <p className="text-xs leading-relaxed text-[var(--color-muted)]">
-                ADMIN_EMAILS is a comma separated allowlist of addresses permitted to
-                hold the admin role. ADMIN_SETUP_TOKEN is a random secret you generate
-                with <code>openssl rand -hex 32</code>. Both live only in your Vercel
-                environment, never in the repository.
+                All values live only in your Vercel environment, never in the
+                repository. Environment changes need a redeploy before they take
+                effect.
               </p>
             </div>
           ) : (

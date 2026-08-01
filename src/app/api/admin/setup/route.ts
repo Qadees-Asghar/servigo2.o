@@ -30,12 +30,34 @@ export const runtime = "nodejs";
 
 export async function GET() {
   return handle(async () => {
-    const claimed = await adminBootstrapClaimed();
-    const configured =
-      adminEmailAllowlist().length > 0 &&
-      (process.env.ADMIN_SETUP_TOKEN ?? "").length >= 16;
+    const hasEmails = adminEmailAllowlist().length > 0;
+    const hasToken = (process.env.ADMIN_SETUP_TOKEN ?? "").length >= 16;
+    const configured = hasEmails && hasToken;
 
-    return ok({ available: !claimed && configured, claimed, configured });
+    // Report the database separately from the config. Without this split, a
+    // bad DATABASE_URL looks identical to a missing ADMIN_EMAILS, which sends
+    // you round in circles fixing the wrong thing.
+    let claimed = false;
+    let dbOk = true;
+    let dbError: string | null = null;
+
+    try {
+      claimed = await adminBootstrapClaimed();
+    } catch (err) {
+      dbOk = false;
+      dbError =
+        err instanceof Error ? err.message : "Could not reach the database.";
+    }
+
+    return ok({
+      available: dbOk && configured && !claimed,
+      claimed,
+      configured,
+      hasEmails,
+      hasToken,
+      dbOk,
+      dbError,
+    });
   });
 }
 
