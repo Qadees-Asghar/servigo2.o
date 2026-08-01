@@ -1,0 +1,226 @@
+@import "tailwindcss";
+
+/* =============================================================
+   SERVIGO design tokens
+   Palette lifted directly from Theme/AppTheme.cs so the web app
+   is visually continuous with the desktop original.
+   ============================================================= */
+
+@theme {
+  --color-bg: #0d0f14;
+  --color-surface: #161a23;
+  --color-surface-2: #1e2332;
+  --color-line: #2a3048;
+
+  --color-accent: #f97316;
+  --color-accent-hover: #fb923c;
+  --color-accent-dim: #321908;
+
+  --color-gold: #f5c542;
+  --color-gold-dim: #372d0a;
+
+  --color-ink: #e8ecf4;
+  --color-muted: #7a85a3;
+
+  --color-success: #22c55e;
+  --color-success-dim: #0a3219;
+  --color-danger: #ef4444;
+  --color-danger-dim: #3c0f0f;
+  --color-info: #60a5fa;
+  --color-info-dim: #0f2341;
+  --color-warning: #ffc107;
+
+  --font-sans: "Segoe UI", ui-sans-serif, system-ui, -apple-system,
+    "Helvetica Neue", Arial, sans-serif;
+
+  --radius-card: 14px;
+}
+
+* {
+  border-color: var(--color-line);
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle ambient glow behind the hero, drawn with pure CSS so it costs
+   nothing at runtime and needs no image asset. */
+.aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.aurora::before,
+.aurora::after {
+  content: "";
+  position: absolute;
+  width: 46rem;
+  height: 46rem;
+  border-radius: 9999px;
+  filter: blur(120px);
+  opacity: 0.28;
+}
+.aurora::before {
+  background: var(--color-accent);
+  top: -18rem;
+  left: -10rem;
+}
+.aurora::after {
+  background: var(--color-info);
+  bottom: -22rem;
+  right: -12rem;
+  opacity: 0.18;
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+}
+
+.input {
+  width: 100%;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  color: var(--color-ink);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.input::placeholder {
+  color: var(--color-muted);
+}
+.input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgb(249 115 22 / 0.15);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 10px;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease,
+    transform 0.08s ease;
+  border: 1px solid transparent;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--color-accent);
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+.btn-outline {
+  background: transparent;
+  border-color: var(--color-line);
+  color: var(--color-muted);
+}
+.btn-outline:hover:not(:disabled) {
+  background: var(--color-surface-2);
+  color: var(--color-ink);
+}
+.btn-success {
+  background: var(--color-success);
+  color: #fff;
+}
+.btn-danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+.btn-sm {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin-bottom: 0.35rem;
+}
+
+.err {
+  color: var(--color-danger);
+  font-size: 0.78rem;
+  margin-top: 0.3rem;
+}
+
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+table.data th {
+  text-align: left;
+  background: var(--color-surface-2);
+  color: var(--color-muted);
+  font-weight: 700;
+  padding: 0.7rem 0.85rem;
+  white-space: nowrap;
+}
+table.data td {
+  padding: 0.7rem 0.85rem;
+  border-top: 1px solid var(--color-line);
+  vertical-align: middle;
+}
+table.data tbody tr:hover {
+  background: var(--color-surface-2);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
